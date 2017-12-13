@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图片上传--IE10及以上版本</title>
+    <style>
+        /*body,p,img,div{*/
+            /*padding:0;*/
+            /*margin:0;*/
+            /*-webkit-box-sizing: border-box;*/
+            /*-moz-box-sizing: border-box;*/
+            /*box-sizing: border-box;*/
+        /*}*/
+        img{
+            max-width:100%;
+            height:auto;
+            display: block;
+        }
+        .clearfix:after{
+            clear:both;
+            visibility: hidden;
+            height:0;
+            display: block;
+            content: "";
+            overflow: hidden;
+        }
+        .wrap{
+            width:600px;
+            background: #f5f5f5;
+            margin:30px auto;
+            padding:20px;
+            box-shadow:0 0 10px 2px #ccc;
+        }
+        .imgWrap{
+            padding-top:20px;
+            clear:both;
+        }
+        .imgWrap div{
+            float:left;
+            margin-right:10px;
+            width:200px;
+        }
+        .imgPreview img{
+            position: relative;
+        }
+
+        .imgPreview{
+            position: relative;
+        }
+        .closeBtn{
+            position: absolute;
+            right:-15px;
+            top:5px;
+            display: block;
+            width:30px;
+            height:30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            color:#333;
+            z-index: 2;
+            font-size:18px;
+            border:1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap" id="wrap1">
+        <p>单个图片上传</p>
+        <input type="file" class="file"><br>
+        <div class="imgWrap">
+            <p class="picName"></p>
+        </div>
+   </div>
+
+    <div class="wrap" id="wrap2">
+        <p>多个图片上传</p>
+        <input type="file" class="file" multiple><br>
+        <div class="imgWrap clearfix">  </div>
+
+
+
+    </div>
+
+
+
+    <script>
+        siglePic("#wrap1");
+        manyPic("#wrap2");
+
+        //单个图片上传
+        function siglePic(wrap){
+            var file = document.querySelector(wrap +" .file");
+            var imgWrap = document.querySelector(wrap +" .imgWrap");
+            var pName = document.querySelector(wrap +" .imgWrap p");
+            var img = new Image();
+
+            file.addEventListener("change",function(){
+                var url = window.URL.createObjectURL(file.files[0]);
+                pName.innerHTML = "图片名称是："+ file.files[0].name + "     图片类型是："+file.files[0].type;
+                console.log(url);
+                img.src = url;
+                imgWrap.appendChild(img);
+            })
+        }
+
+        //多个个图片上传，如果只需要一张图，可以在input上去掉multiple
+        function manyPic(wrap){
+            var file = document.querySelector(wrap +" .file");
+            var imgWrap = document.querySelector(wrap +" .imgWrap");
+            var picType = ["jpg","png","gif","jpeg"];
+
+            file.addEventListener("change",function(){
+
+               var  len = file.files.length;
+               for(var i = 0;i <len;i ++){
+                   console.log(file.files[i]);
+
+                    //判断图片类型
+                    var thisType = file.files[i].type;
+                    var typeList = thisType.split("\/");
+                    var type = typeList[typeList.length-1];
+                    if(picType.indexOf(type)<0){
+                        alert("请提交‘jpg、jpeg、png、gif’格式的图片文件");
+                       return;
+                    }
+                    //判断文件尺寸
+                    var maxSize= 100;//设置最大可传的大小为100kb;
+                    var thisSize = file.files[i].size;//107942
+                    if(thisSize > maxSize*1024){
+                        alert("图片不能超过"+maxSize+"KB");
+                        return;
+                    }
+
+                    var src = window.URL.createObjectURL(file.files[i]);
+                    console.log(src);
+                    var thisName = file.files[i].name;
+                    var img = new Image();
+                    img.src = src;
+
+                    //    创建图片父节点imgPreview
+                    var imgPreview = document.createElement("div");//必须先在document添加
+                    imgPreview.className = "imgPreview";
+
+                    //    创建放图片名称的节点
+                    var picName = document.createElement("p");
+                    //    创建右上角关闭按钮节点
+                    var closeBtn = document.createElement("span");
+                    closeBtn.innerHTML = "x";
+                    closeBtn.className = "closeBtn";
+                    picName.className = "picName";
+                    picName.innerHTML = thisName;
+                    imgPreview.appendChild(closeBtn);  //“关闭按钮”追加到父节点
+                    imgPreview.appendChild(picName);  //“图片名称”追加到父节点
+                    imgPreview.appendChild(img);      //“图片”追加到父节点
+                    imgWrap.appendChild(imgPreview);  //将父节点追加到想要的位置
+
+                    //    点击关闭按钮，移除当前图片
+                    closeBtn.addEventListener("click",function(){
+                        this.parentNode.innerHTML = "";
+                    });
+                }
+
+            });
+
+
+        }
+
+
+
+
+    </script>
+
+
+
+</body>
+</html>
